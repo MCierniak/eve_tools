@@ -1,8 +1,6 @@
 #TODO
-#Function - market data from structure; code exists in func pi_factory_profit() (input - structure id, esi interface with scope esi-markets.structure_markets.v1)
+#market_in_structure function needs to be modified to identify valid structures
 #Function - median (input- values list, qty list), return median value and 4 lists - 50% low values and qty, 50% high values and qty
-#Function - quartyl_low (input- values list, qty list)
-#Function - quartyl_high (input- values list, qty list)
 
 import webbrowser
 import logging
@@ -11,6 +9,7 @@ import time
 import os
 
 from esipy import EsiApp, EsiClient, EsiSecurity
+from esipy.exceptions import APIException
 from multiprocessing import Process, Queue
 from flask import Flask, request
 
@@ -72,12 +71,13 @@ def server_start():
     app.run(host = "localhost", port = 65432, debug = False)
 
 #ESI initialization and scope authentication
-def esi_init(esi_scopes = []):
+def esi_init(esi_scopes = [], verbose = True):
     if len(esi_scopes) > 0:
         server = Process(target = server_start)
         server.start()
 
-        print("Authenticating...")
+        if verbose:
+            print("Authenticating...")
         security = EsiSecurity(
             redirect_uri = esi_redirect_url,
             client_id = esi_client_id,
@@ -90,7 +90,8 @@ def esi_init(esi_scopes = []):
         )
         webbrowser.open(security_url)
 
-        print("Loading ESI Swagger interface...")
+        if verbose:
+            print("Loading ESI Swagger interface...")
         esi_token = "0"
         esi_swagger = EsiApp().get_latest_swagger
         client = EsiClient(
@@ -122,8 +123,10 @@ def esi_init(esi_scopes = []):
 
         return esi_swagger, client
 
-#ESI extract all system ids in a region
-def solar_systems_in_region(r_id, esi_api, esi_client):
+#ESI system ids from region
+def solar_systems_in_region(r_id, esi_api, esi_client, verbose = True):
+    if verbose:
+        print("Extracting solar system ids in region", r_id, "...")
     sys = []
     opp = esi_api.op["get_universe_regions_region_id"](
         region_id = r_id
@@ -138,8 +141,10 @@ def solar_systems_in_region(r_id, esi_api, esi_client):
             sys.append(el2)
     return sys
 
-#ESI extract all structure ids in a system
-def structures_in_system(s_id, esi_api, esi_client, esi_tokens, esi_api_info):
+#ESI structure ids from system
+def structures_in_system(s_id, esi_api, esi_client, esi_tokens, esi_api_info, verbose = True):
+    if verbose:
+        print("Extracting structure ids in system", s_id, "...")
     if "esi-search.search_structures.v1" in esi_api_info["scp"]:
         structures = []
         opp = esi_api.op["get_universe_systems_system_id"](
@@ -159,12 +164,38 @@ def structures_in_system(s_id, esi_api, esi_client, esi_tokens, esi_api_info):
     else:
         raise RuntimeError("missing scope - esi-search.search_structures.v1")
 
+#ESI market data from structure
+def market_in_structure(s_id, esi_api, esi_client, esi_tokens, esi_api_info, verbose = True):
+    if verbose:
+        print("Collecting market data from structure", s_id, "...")
+    if "esi-markets.structure_markets.v1" in esi_api_info["scp"]:
+        data = []
+        opp = esi_api.op["get_markets_structures_structure_id"](
+                page = 1,
+                structure_id = s_id,
+                token = esi_tokens["access_token"]
+        )
+        esi_payload = esi_client.request(opp, raise_on_error = True)
+        for el in esi_payload.data:
+            data.append(el)
+        for i in range(2, esi_payload.header["X-Pages"][0] + 1):
+            opp2 = esi_api.op["get_markets_structures_structure_id"](
+                page = i,
+                structure_id = s_id,
+                token = esi_tokens["access_token"]
+            )
+            esi_payload2 = esi_client.request(opp2, raise_on_error = True)
+            for el in esi_payload2.data:
+                data.append(el)
+        return data
+    else:
+        raise RuntimeError("missing scope - esi-markets.structure_markets.v1")
+
 def pi_factory_profit():
 
     esi_scopes = ["esi-markets.structure_markets.v1", "esi-search.search_structures.v1"]
     ids ={
         "Delve"                             : 10000060,
-        "Imperial Palace"                   : 1030049082711,
         "Bacteria"                          : 2393,
         "Biofuels"                          : 2396,
         "Biomass"                           : 3779,
@@ -236,23 +267,22 @@ def pi_factory_profit():
     }
 
     esi_api, esi_client, esi_tokens, esi_api_info = esi_init(esi_scopes)
-    
-    print("Collecting market data...")
+
+    solar_systems = solar_systems_in_region(ids["Delve"], esi_api, esi_client)
+
+    print("Extracting structure ids...")
+    structures = []
+    for el in solar_systems:
+        temp = structures_in_system(el, esi_api, esi_client, esi_tokens, esi_api_info, verbose = False)
+        for el2 in temp:
+            structures.append(el2)
+
+    print("Extracting market data...")
     data = []
-    page_nr = 1
-    while True:
-        opp = esi_api.op["get_markets_structures_structure_id"](
-            page = page_nr,
-            structure_id = ids["Imperial Palace"],
-            token = esi_tokens["access_token"]
-        )
-        try:
-            esi_payload = esi_client.request(opp, raise_on_error = True)
-        except:
-            break
-        for el in esi_payload.data:
-            data.append(el)
-        page_nr = page_nr + 1
+    for el in structures:
+        temp = market_in_structure(el, esi_api, esi_client, esi_tokens, esi_api_info, verbose = False)
+        for el2 in temp:
+            data.append(el2)
 
     print("Parsing market data...")
     pi_data_sell_value = {
@@ -297,18 +327,13 @@ def pi_factory_profit():
                 pi_data_sell_value[el["type_id"]].append(el["price"])
                 pi_data_sell_qty[el["type_id"]].append(el["volume_total"])
 
-    print(pi_data_buy_value[ids["Bacteria"]])
-    print(pi_data_buy_qty[ids["Bacteria"]])
+    print(pi_data_buy_value[ids["Biomass"]])
+    print(pi_data_buy_qty[ids["Biomass"]])
 
 if __name__ == "__main__":
     #####
     #pi_factory_profit()
     esi_scopes = ["esi-markets.structure_markets.v1", "esi-search.search_structures.v1"]
     esi_api, esi_client, esi_tokens, esi_api_info = esi_init(esi_scopes)
-    solar_systems = solar_systems_in_region("10000060", esi_api, esi_client)
-    structures = []
-    for el in solar_systems:
-        temp = structures_in_system(el, esi_api, esi_client, esi_tokens, esi_api_info)
-        for el2 in temp:
-            structures.append(el2)
-    print(structures)
+    data = market_in_structure(1030049082711, esi_api, esi_client, esi_tokens, esi_api_info, verbose = True)
+    print(data)
