@@ -16,10 +16,10 @@ from flask import Flask, request
 
 #Global variables
 esi_dat = []
-if os.path.exists("esi_info"):
-    esi_dat = open("esi_info", 'r').read().splitlines()
+if os.path.exists("esi_info.dat"):
+    esi_dat = open("esi_info.dat", 'r').read().splitlines()
 else:
-    raise RuntimeError("esi_info file missing")
+    raise RuntimeError("esi_info.dat file missing")
 esi_client_id = esi_dat[0]
 esi_secret_key = esi_dat[1]
 esi_redirect_url = esi_dat[2]
