@@ -264,3 +264,4 @@ __pycache__/
 /eve_tools/eve_tools_env/
 *.sln
 *.pyproj
+esi_info.dat
