@@ -1,8 +1,9 @@
 #TODO
-#market_in_structure function needs to be modified to identify valid structures
 #Function - median (input- values list, qty list), return median value and 4 lists - 50% low values and qty, 50% high values and qty
 
+import numpy as np
 import webbrowser
+import itertools
 import logging
 import uuid
 import time
@@ -191,6 +192,7 @@ def market_in_structure(s_id, esi_api, esi_client, esi_tokens, esi_api_info, ver
     else:
         raise RuntimeError("missing scope - esi-markets.structure_markets.v1")
 
+#incomplete
 def pi_factory_profit():
 
     esi_scopes = ["esi-markets.structure_markets.v1", "esi-search.search_structures.v1"]
@@ -330,10 +332,582 @@ def pi_factory_profit():
     print(pi_data_buy_value[ids["Biomass"]])
     print(pi_data_buy_qty[ids["Biomass"]])
 
+def reaction_planner():
+    print("Reaction planner v1.0")
+    print("Collecting resource data...")
+    resource_t0 = {
+        "Atmospheric Gas"       : 6114,
+        "Cadmium"               : 20305,
+        "Caesium"               : 0,
+        "Chromium"              : 23811,
+        "Cobalt"                : 1039,
+        "Dysprosium"            : 1143,
+        "Evaporite Deposits"    : 55234,
+        "Hafnium"               : 9673,
+        "Hydrocarbons"          : 4920,
+        "Mercury"               : 121443,
+        "Neodymium"             : 9345,
+        "Platinum"              : 87836,
+        "Promethium"            : 0,
+        "Scandium"              : 0,
+        "Silicates"             : 10986,
+        "Technetium"            : 0,
+        "Thulium"               : 9786,
+        "Titanium"              : 8433,
+        "Tungsten"              : 24871,
+        "Vanadium"              : 62138
+        }
+    resource_t1 = {
+        "Caesarium Cadmide"     : 0,
+        "Carbon Fiber"          : 163200,
+        "Carbon Polymers"       : 0,
+        "Ceramic Powder"        : 0,
+        "Crystallite Alloy"     : 178377,
+        "Dysporite"             : 26658,
+        "Fernite Alloy"         : 0,
+        "Ferrofluid"            : 0,
+        "Fluxed Condensates"    : 0,
+        "Hexite"                : 0,
+        "Hyperflurite"          : 0,
+        "Neo Mercurite"         : 15114,
+        "Oxy-Organic Solvents"  : 0,
+        "Platinum Technite"     : 0,
+        "Prometium"             : 0,
+        "Promethium Mercurite"  : 2730,
+        "Rolled Tungsten Alloy" : 0,
+        "Silicon Diborite"      : 103600,
+        "Solerium"              : 0,
+        "Sulfuric Acid"         : 0,
+        "Thermosetting Polymer" : 40090,
+        "Thulium Hafnite"       : 0,
+        "Titanium Chromide"     : 0,
+        "Vanadium Hafnite"      : 0
+        }
+    runs_t1 = {
+        "Caesarium Cadmide"     : 0,
+        "Carbon Fiber"          : 0,
+        "Carbon Polymers"       : 0,
+        "Ceramic Powder"        : 0,
+        "Crystallite Alloy"     : 0,
+        "Dysporite"             : 0,
+        "Fernite Alloy"         : 0,
+        "Ferrofluid"            : 0,
+        "Fluxed Condensates"    : 0,
+        "Hexite"                : 0,
+        "Hyperflurite"          : 0,
+        "Neo Mercurite"         : 0,
+        "Oxy-Organic Solvents"  : 0,
+        "Platinum Technite"     : 0,
+        "Prometium"             : 0,
+        "Promethium Mercurite"  : 0,
+        "Rolled Tungsten Alloy" : 0,
+        "Silicon Diborite"      : 0,
+        "Solerium"              : 0,
+        "Sulfuric Acid"         : 0,
+        "Thermosetting Polymer" : 0,
+        "Thulium Hafnite"       : 0,
+        "Titanium Chromide"     : 0,
+        "Vanadium Hafnite"      : 0
+        }
+    fuel = {
+        "Nitrogen Fuel Block" : 0,
+        "Helium Fuel Block" : 0,
+        "Oxygen Fuel Block" : 0,
+        "Hydrogen Fuel Block" : 0
+        }
+    runs_t2 = {
+        "Reinforced Carbon Fiber" : 0,
+        "Pressurized Oxidizers" : 0,
+        "Crystalline Carbonide" : 0,
+        "Phenolic Composites" : 0,
+        "Fernite Carbide" : 0,
+        "Titanium Carbide" : 0,
+        "Tungsten Carbide" : 0,
+        "Sylramic Fibers" : 0,
+        "Fulleride" : 0,
+        "Terahertz Metamaterials" : 0,
+        "Photonic Metamaterials" : 0,
+        "Plasmonic Metamaterials" : 0,
+        "Nonlinear Metamaterials" : 0,
+        "Nanotransistors" : 0,
+        "Hypersynaptic Fibers" : 0,
+        "Ferrogel" : 0,
+        "Fermionic Condensates" : 0
+        }
+    def react(r_t0, r_t1, o, t1, f):
+        temp_r_t0 = {key : r_t0[key] for key in r_t0}
+        temp_r_t1 = {key : r_t1[key] for key in r_t1}
+        temp_o = {key : o[key] for key in o}
+        temp_t1 = {key : t1[key] for key in t1}
+        temp_f = {key : f[key] for key in f}
+        for i in range(temp_o["Reinforced Carbon Fiber"]):
+            if temp_r_t1["Carbon Fiber"] >= 200:
+                temp_r_t1["Carbon Fiber"] -= 200
+            else:
+                temp_t1["Carbon Fiber"] += 1
+                temp_r_t0["Hydrocarbons"] -= 100
+                temp_r_t0["Evaporite Deposits"] -= 100
+                temp_f["Hydrogen Fuel Block"] += 5
+            if temp_r_t1["Thermosetting Polymer"] >= 200:
+                temp_r_t1["Thermosetting Polymer"] -= 200
+            else:
+                temp_t1["Thermosetting Polymer"] += 1
+                temp_r_t0["Atmospheric Gas"] -= 100
+                temp_r_t0["Silicates"] -= 100
+                temp_f["Oxygen Fuel Block"] += 5
+            if temp_r_t1["Oxy-Organic Solvents"] >= 1:
+                temp_r_t1["Oxy-Organic Solvents"] -= 1
+            else:
+                temp_t1["Oxy-Organic Solvents"] += 1
+                temp_r_t0["Hydrocarbons"] -= 2000
+                temp_r_t0["Atmospheric Gas"] -= 2000
+                temp_f["Oxygen Fuel Block"] += 5
+                temp_r_t1["Oxy-Organic Solvents"] += 9
+        for i in range(temp_o["Pressurized Oxidizers"]):
+            if temp_r_t1["Carbon Polymers"] >= 200:
+                temp_r_t1["Carbon Polymers"] -= 200
+            else:
+                temp_t1["Carbon Polymers"] += 1
+                temp_r_t0["Hydrocarbons"] -= 100
+                temp_r_t0["Silicates"] -= 100
+                temp_f["Helium Fuel Block"] += 5
+            if temp_r_t1["Sulfuric Acid"] >= 200:
+                temp_r_t1["Sulfuric Acid"] -= 200
+            else:
+                temp_t1["Sulfuric Acid"] += 1
+                temp_r_t0["Atmospheric Gas"] -= 100
+                temp_r_t0["Evaporite Deposits"] -= 100
+                temp_f["Nitrogen Fuel Block"] += 5
+            if temp_r_t1["Oxy-Organic Solvents"] >= 1:
+                temp_r_t1["Oxy-Organic Solvents"] -= 1
+            else:
+                temp_t1["Oxy-Organic Solvents"] += 1
+                temp_r_t0["Hydrocarbons"] -= 2000
+                temp_r_t0["Atmospheric Gas"] -= 2000
+                temp_f["Oxygen Fuel Block"] += 5
+                temp_r_t1["Oxy-Organic Solvents"] += 9
+        for i in range(temp_o["Crystalline Carbonide"]):
+            temp_f["Helium Fuel Block"] += 5
+            if temp_r_t1["Carbon Polymers"] >= 100:
+                temp_r_t1["Carbon Polymers"] -= 100
+            else:
+                temp_t1["Carbon Polymers"] += 1
+                temp_r_t0["Hydrocarbons"] -= 100
+                temp_r_t0["Silicates"] -= 100
+                temp_f["Helium Fuel Block"] += 5
+                temp_r_t1["Carbon Polymers"] += 100
+            if temp_r_t1["Crystallite Alloy"] >= 100:
+                temp_r_t1["Crystallite Alloy"] -= 100
+            else:
+                temp_t1["Crystallite Alloy"] += 1
+                temp_r_t0["Cobalt"] -= 100
+                temp_r_t0["Cadmium"] -= 100
+                temp_f["Helium Fuel Block"] += 5
+                temp_r_t1["Crystallite Alloy"] += 100
+        for i in range(temp_o["Phenolic Composites"]):
+            temp_f["Oxygen Fuel Block"] += 5
+            if temp_r_t1["Silicon Diborite"] >= 100:
+                temp_r_t1["Silicon Diborite"] -= 100
+            else:
+                temp_t1["Silicon Diborite"] += 1
+                temp_r_t0["Evaporite Deposits"] -= 100
+                temp_r_t0["Silicates"] -= 100
+                temp_f["Oxygen Fuel Block"] += 5
+                temp_r_t1["Silicon Diborite"] += 100
+            if temp_r_t1["Caesarium Cadmide"] >= 100:
+                temp_r_t1["Caesarium Cadmide"] -= 100
+            else:
+                temp_t1["Caesarium Cadmide"] += 1
+                temp_r_t0["Cadmium"] -= 100
+                temp_r_t0["Caesium"] -= 100
+                temp_f["Oxygen Fuel Block"] += 5
+                temp_r_t1["Caesarium Cadmide"] += 100
+            if temp_r_t1["Vanadium Hafnite"] >= 100:
+                temp_r_t1["Vanadium Hafnite"] -= 100
+            else:
+                temp_t1["Vanadium Hafnite"] += 1
+                temp_r_t0["Vanadium"] -= 100
+                temp_r_t0["Hafnium"] -= 100
+                temp_f["Hydrogen Fuel Block"] += 5
+                temp_r_t1["Vanadium Hafnite"] += 100
+        for i in range(temp_o["Fernite Carbide"]):
+            temp_f["Hydrogen Fuel Block"] += 5
+            if temp_r_t1["Fernite Alloy"] >= 100:
+                temp_r_t1["Fernite Alloy"] -= 100
+            else:
+                temp_t1["Fernite Alloy"] += 1
+                temp_r_t0["Scandium"] -= 100
+                temp_r_t0["Vanadium"] -= 100
+                temp_f["Hydrogen Fuel Block"] += 5
+                temp_r_t1["Fernite Alloy"] += 100
+            if temp_r_t1["Ceramic Powder"] >= 100:
+                temp_r_t1["Ceramic Powder"] -= 100
+            else:
+                temp_t1["Ceramic Powder"] += 1
+                temp_r_t0["Evaporite Deposits"] -= 100
+                temp_r_t0["Silicates"] -= 100
+                temp_f["Hydrogen Fuel Block"] += 5
+                temp_r_t1["Ceramic Powder"] += 100
+        for i in range(temp_o["Titanium Carbide"]):
+            temp_f["Oxygen Fuel Block"] += 5
+            if temp_r_t1["Titanium Chromide"] >= 100:
+                temp_r_t1["Titanium Chromide"] -= 100
+            else:
+                temp_t1["Titanium Chromide"] += 1
+                temp_r_t0["Titanium"] -= 100
+                temp_r_t0["Chromium"] -= 100
+                temp_f["Oxygen Fuel Block"] += 5
+                temp_r_t1["Titanium Chromide"] += 100
+            if temp_r_t1["Silicon Diborite"] >= 100:
+                temp_r_t1["Silicon Diborite"] -= 100
+            else:
+                temp_t1["Silicon Diborite"] += 1
+                temp_r_t0["Evaporite Deposits"] -= 100
+                temp_r_t0["Silicates"] -= 100
+                temp_f["Oxygen Fuel Block"] += 5
+                temp_r_t1["Silicon Diborite"] += 100
+        for i in range(temp_o["Tungsten Carbide"]):
+            temp_f["Nitrogen Fuel Block"] += 5
+            if temp_r_t1["Rolled Tungsten Alloy"] >= 100:
+                temp_r_t1["Rolled Tungsten Alloy"] -= 100
+            else:
+                temp_t1["Rolled Tungsten Alloy"] += 1
+                temp_r_t0["Tungsten"] -= 100
+                temp_r_t0["Platinum"] -= 100
+                temp_f["Nitrogen Fuel Block"] += 5
+                temp_r_t1["Rolled Tungsten Alloy"] += 100
+            if temp_r_t1["Sulfuric Acid"] >= 100:
+                temp_r_t1["Sulfuric Acid"] -= 100
+            else:
+                temp_t1["Sulfuric Acid"] += 1
+                temp_r_t0["Atmospheric Gas"] -= 100
+                temp_r_t0["Evaporite Deposits"] -= 100
+                temp_f["Nitrogen Fuel Block"] += 5
+                temp_r_t1["Sulfuric Acid"] += 100
+        for i in range(temp_o["Sylramic Fibers"]):
+            temp_f["Helium Fuel Block"] += 5
+            if temp_r_t1["Ceramic Powder"] >= 100:
+                temp_r_t1["Ceramic Powder"] -= 100
+            else:
+                temp_t1["Ceramic Powder"] += 1
+                temp_r_t0["Evaporite Deposits"] -= 100
+                temp_r_t0["Silicates"] -= 100
+                temp_f["Hydrogen Fuel Block"] += 5
+                temp_r_t1["Ceramic Powder"] += 100
+            if temp_r_t1["Hexite"] >= 100:
+                temp_r_t1["Hexite"] -= 100
+            else:
+                temp_t1["Hexite"] += 1
+                temp_r_t0["Chromium"] -= 100
+                temp_r_t0["Platinum"] -= 100
+                temp_f["Nitrogen Fuel Block"] += 5
+                temp_r_t1["Hexite"] += 100
+        for i in range(temp_o["Fulleride"]):
+            temp_f["Nitrogen Fuel Block"] += 5
+            if temp_r_t1["Carbon Polymers"] >= 100:
+                temp_r_t1["Carbon Polymers"] -= 100
+            else:
+                temp_t1["Carbon Polymers"] += 1
+                temp_r_t0["Hydrocarbons"] -= 100
+                temp_r_t0["Silicates"] -= 100
+                temp_f["Helium Fuel Block"] += 5
+                temp_r_t1["Carbon Polymers"] += 100
+            if temp_r_t1["Platinum Technite"] >= 100:
+                temp_r_t1["Platinum Technite"] -= 100
+            else:
+                temp_t1["Platinum Technite"] += 1
+                temp_r_t0["Platinum"] -= 100
+                temp_r_t0["Technetium"] -= 100
+                temp_f["Nitrogen Fuel Block"] += 5
+                temp_r_t1["Platinum Technite"] += 100
+        for i in range(temp_o["Terahertz Metamaterials"]):
+            temp_f["Helium Fuel Block"] += 5
+            if temp_r_t1["Rolled Tungsten Alloy"] >= 100:
+                temp_r_t1["Rolled Tungsten Alloy"] -= 100
+            else:
+                temp_t1["Rolled Tungsten Alloy"] += 1
+                temp_r_t0["Tungsten"] -= 100
+                temp_r_t0["Platinum"] -= 100
+                temp_f["Nitrogen Fuel Block"] += 5
+                temp_r_t1["Rolled Tungsten Alloy"] += 100
+            if temp_r_t1["Promethium Mercurite"] >= 100:
+                temp_r_t1["Promethium Mercurite"] -= 100
+            else:
+                temp_t1["Promethium Mercurite"] += 1
+                temp_r_t0["Mercury"] -= 100
+                temp_r_t0["Promethium"] -= 100
+                temp_f["Helium Fuel Block"] += 5
+                temp_r_t1["Promethium Mercurite"] += 100
+        for i in range(temp_o["Photonic Metamaterials"]):
+            temp_f["Oxygen Fuel Block"] += 5
+            if temp_r_t1["Crystallite Alloy"] >= 100:
+                temp_r_t1["Crystallite Alloy"] -= 100
+            else:
+                temp_t1["Crystallite Alloy"] += 1
+                temp_r_t0["Cobalt"] -= 100
+                temp_r_t0["Cadmium"] -= 100
+                temp_f["Helium Fuel Block"] += 5
+                temp_r_t1["Crystallite Alloy"] += 100
+            if temp_r_t1["Thulium Hafnite"] >= 100:
+                temp_r_t1["Thulium Hafnite"] -= 100
+            else:
+                temp_t1["Thulium Hafnite"] += 1
+                temp_r_t0["Hafnium"] -= 100
+                temp_r_t0["Thulium"] -= 100
+                temp_f["Hydrogen Fuel Block"] += 5
+                temp_r_t1["Thulium Hafnite"] += 100
+        for i in range(temp_o["Plasmonic Metamaterials"]):
+            temp_f["Hydrogen Fuel Block"] += 5
+            if temp_r_t1["Fernite Alloy"] >= 100:
+                temp_r_t1["Fernite Alloy"] -= 100
+            else:
+                temp_t1["Fernite Alloy"] += 1
+                temp_r_t0["Scandium"] -= 100
+                temp_r_t0["Vanadium"] -= 100
+                temp_f["Hydrogen Fuel Block"] += 5
+                temp_r_t1["Fernite Alloy"] += 100
+            if temp_r_t1["Neo Mercurite"] >= 100:
+                temp_r_t1["Neo Mercurite"] -= 100
+            else:
+                temp_t1["Neo Mercurite"] += 1
+                temp_r_t0["Mercury"] -= 100
+                temp_r_t0["Neodymium"] -= 100
+                temp_f["Helium Fuel Block"] += 5
+                temp_r_t1["Neo Mercurite"] += 100
+        for i in range(temp_o["Nonlinear Metamaterials"]):
+            temp_f["Nitrogen Fuel Block"] += 5
+            if temp_r_t1["Titanium Chromide"] >= 100:
+                temp_r_t1["Titanium Chromide"] -= 100
+            else:
+                temp_t1["Titanium Chromide"] += 1
+                temp_r_t0["Titanium"] -= 100
+                temp_r_t0["Chromium"] -= 100
+                temp_f["Oxygen Fuel Block"] += 5
+                temp_r_t1["Titanium Chromide"] += 100
+            if temp_r_t1["Ferrofluid"] >= 100:
+                temp_r_t1["Ferrofluid"] -= 100
+            else:
+                temp_t1["Ferrofluid"] += 1
+                temp_r_t0["Hafnium"] -= 100
+                temp_r_t0["Dysprosium"] -= 100
+                temp_f["Hydrogen Fuel Block"] += 5
+                temp_r_t1["Ferrofluid"] += 100
+        for i in range(temp_o["Nanotransistors"]):
+            temp_f["Nitrogen Fuel Block"] += 5
+            if temp_r_t1["Sulfuric Acid"] >= 100:
+                temp_r_t1["Sulfuric Acid"] -= 100
+            else:
+                temp_t1["Sulfuric Acid"] += 1
+                temp_r_t0["Atmospheric Gas"] -= 100
+                temp_r_t0["Evaporite Deposits"] -= 100
+                temp_f["Nitrogen Fuel Block"] += 5
+                temp_r_t1["Sulfuric Acid"] += 100
+            if temp_r_t1["Platinum Technite"] >= 100:
+                temp_r_t1["Platinum Technite"] -= 100
+            else:
+                temp_t1["Platinum Technite"] += 1
+                temp_r_t0["Platinum"] -= 100
+                temp_r_t0["Technetium"] -= 100
+                temp_f["Nitrogen Fuel Block"] += 5
+                temp_r_t1["Platinum Technite"] += 100
+            if temp_r_t1["Neo Mercurite"] >= 100:
+                temp_r_t1["Neo Mercurite"] -= 100
+            else:
+                temp_t1["Neo Mercurite"] += 1
+                temp_r_t0["Mercury"] -= 100
+                temp_r_t0["Neodymium"] -= 100
+                temp_f["Helium Fuel Block"] += 5
+                temp_r_t1["Neo Mercurite"] += 100
+        for i in range(temp_o["Hypersynaptic Fibers"]):
+            temp_f["Oxygen Fuel Block"] += 5
+            if temp_r_t1["Solerium"] >= 100:
+                temp_r_t1["Solerium"] -= 100
+            else:
+                temp_t1["Solerium"] += 1
+                temp_r_t0["Chromium"] -= 100
+                temp_r_t0["Caesium"] -= 100
+                temp_f["Oxygen Fuel Block"] += 5
+                temp_r_t1["Solerium"] += 100
+            if temp_r_t1["Dysporite"] >= 100:
+                temp_r_t1["Dysporite"] -= 100
+            else:
+                temp_t1["Dysporite"] += 1
+                temp_r_t0["Mercury"] -= 100
+                temp_r_t0["Dysprosium"] -= 100
+                temp_f["Helium Fuel Block"] += 5
+                temp_r_t1["Dysporite"] += 100
+            if temp_r_t1["Vanadium Hafnite"] >= 100:
+                temp_r_t1["Vanadium Hafnite"] -= 100
+            else:
+                temp_t1["Vanadium Hafnite"] += 1
+                temp_r_t0["Vanadium"] -= 100
+                temp_r_t0["Hafnium"] -= 100
+                temp_f["Hydrogen Fuel Block"] += 5
+                temp_r_t1["Vanadium Hafnite"] += 100
+        for i in range(temp_o["Ferrogel"]):
+            temp_f["Hydrogen Fuel Block"] += 5
+            if temp_r_t1["Hexite"] >= 100:
+                temp_r_t1["Hexite"] -= 100
+            else:
+                temp_t1["Hexite"] += 1
+                temp_r_t0["Chromium"] -= 100
+                temp_r_t0["Platinum"] -= 100
+                temp_f["Nitrogen Fuel Block"] += 5
+                temp_r_t1["Hexite"] += 100
+            if temp_r_t1["Hyperflurite"] >= 100:
+                temp_r_t1["Hyperflurite"] -= 100
+            else:
+                temp_t1["Hyperflurite"] += 1
+                temp_r_t0["Vanadium"] -= 100
+                temp_r_t0["Promethium"] -= 100
+                temp_f["Nitrogen Fuel Block"] += 5
+                temp_r_t1["Hyperflurite"] += 100
+            if temp_r_t1["Ferrofluid"] >= 100:
+                temp_r_t1["Ferrofluid"] -= 100
+            else:
+                temp_t1["Ferrofluid"] += 1
+                temp_r_t0["Hafnium"] -= 100
+                temp_r_t0["Dysprosium"] -= 100
+                temp_f["Hydrogen Fuel Block"] += 5
+                temp_r_t1["Ferrofluid"] += 100
+            if temp_r_t1["Prometium"] >= 100:
+                temp_r_t1["Prometium"] -= 100
+            else:
+                temp_t1["Prometium"] += 1
+                temp_r_t0["Cadmium"] -= 100
+                temp_r_t0["Promethium"] -= 100
+                temp_f["Oxygen Fuel Block"] += 5
+                temp_r_t1["Prometium"] += 100
+        for i in range(temp_o["Fermionic Condensates"]):
+            temp_f["Helium Fuel Block"] += 5
+            if temp_r_t1["Caesarium Cadmide"] >= 100:
+                temp_r_t1["Caesarium Cadmide"] -= 100
+            else:
+                temp_t1["Caesarium Cadmide"] += 1
+                temp_r_t0["Cadmium"] -= 100
+                temp_r_t0["Caesium"] -= 100
+                temp_f["Oxygen Fuel Block"] += 5
+                temp_r_t1["Caesarium Cadmide"] += 100
+            if temp_r_t1["Dysporite"] >= 100:
+                temp_r_t1["Dysporite"] -= 100
+            else:
+                temp_t1["Dysporite"] += 1
+                temp_r_t0["Mercury"] -= 100
+                temp_r_t0["Dysprosium"] -= 100
+                temp_f["Helium Fuel Block"] += 5
+                temp_r_t1["Dysporite"] += 100
+            if temp_r_t1["Fluxed Condensates"] >= 100:
+                temp_r_t1["Fluxed Condensates"] -= 100
+            else:
+                temp_t1["Fluxed Condensates"] += 1
+                temp_r_t0["Neodymium"] -= 100
+                temp_r_t0["Thulium"] -= 100
+                temp_f["Oxygen Fuel Block"] += 5
+                temp_r_t1["Fluxed Condensates"] += 100
+            if temp_r_t1["Prometium"] >= 100:
+                temp_r_t1["Prometium"] -= 100
+            else:
+                temp_t1["Prometium"] += 1
+                temp_r_t0["Cadmium"] -= 100
+                temp_r_t0["Promethium"] -= 100
+                temp_f["Oxygen Fuel Block"] += 5
+                temp_r_t1["Prometium"] += 100
+        return temp_r_t0, temp_r_t1, temp_o, temp_t1, temp_f
+    
+    best_o = {}
+    rep_range = 2
+    permut_old = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    best_resource = 1e300
+    best_runs_t2 = {key : runs_t2[key] for key in runs_t2}
+    best_runs_t1 = {key : runs_t1[key] for key in runs_t1}
+    best_resource_t0 = {key : resource_t0[key] for key in resource_t0}
+    best_resource_t1 = {key : resource_t1[key] for key in resource_t1}
+    print("Calculating reaction plans...")
+    while rep_range < 100:
+        improved = False
+        print("Step", rep_range - 1)
+        for a1 in range(rep_range):
+            for a2 in range(rep_range):
+                 for a3 in range(rep_range):
+                     for a4 in range(rep_range):
+                         for a5 in range(rep_range):
+                             for a6 in range(rep_range):
+                                 for a7 in range(rep_range):
+                                     for a8 in range(rep_range):
+                                         for a9 in range(rep_range):
+                                             for a10 in range(rep_range):
+                                                 for a11 in range(rep_range):
+                                                     for a12 in range(rep_range):
+                                                         for a13 in range(rep_range):
+                                                             for a14 in range(rep_range):
+                                                                 for a15 in range(rep_range):
+                                                                     for a16 in range(rep_range):
+                                                                         for a17 in range(rep_range):
+                                                                             per = [a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17]
+                                                                             if per not in permut_old:
+                                                                                 permut_old.append(per)
+                                                                                 temp_runs_t2 = {key : runs_t2[key] for key in runs_t2}
+                                                                                 temp_runs_t2["Reinforced Carbon Fiber"] = per[0]
+                                                                                 temp_runs_t2["Pressurized Oxidizers"] = per[1]
+                                                                                 temp_runs_t2["Crystalline Carbonide"] = per[2]
+                                                                                 temp_runs_t2["Phenolic Composites"] = per[3]
+                                                                                 temp_runs_t2["Fernite Carbide"] = per[4]
+                                                                                 temp_runs_t2["Titanium Carbide"] = per[5]
+                                                                                 temp_runs_t2["Tungsten Carbide"] = per[6]
+                                                                                 temp_runs_t2["Sylramic Fibers"] = per[7]
+                                                                                 temp_runs_t2["Fulleride"] = per[8]
+                                                                                 temp_runs_t2["Terahertz Metamaterials"] = per[9]
+                                                                                 temp_runs_t2["Photonic Metamaterials"] = per[10]
+                                                                                 temp_runs_t2["Plasmonic Metamaterials"] = per[11]
+                                                                                 temp_runs_t2["Nonlinear Metamaterials"] = per[12]
+                                                                                 temp_runs_t2["Nanotransistors"] = per[13]
+                                                                                 temp_runs_t2["Hypersynaptic Fibers"] = per[14]
+                                                                                 temp_runs_t2["Ferrogel"] = per[15]
+                                                                                 temp_runs_t2["Fermionic Condensates"] = per[16]
+                                                                                 temp_resource_t0 = {key : resource_t0[key] for key in resource_t0}
+                                                                                 temp_resource_t1 = {key : resource_t1[key] for key in resource_t1}
+                                                                                 temp_runs_t1 = {key : runs_t1[key] for key in runs_t1}
+                                                                                 temp_fuel = {key : fuel[key] for key in fuel}
+                                                                                 temp_resource_t0, temp_resource_t1, temp_runs_t2, temp_runs_t1, temp_fuel = react(temp_resource_t0, temp_resource_t1, temp_runs_t2, temp_runs_t1, temp_fuel)
+                                                                                 if np.all([(el>=0) for el in temp_resource_t0.values()]) and np.all([(el>=0) for el in temp_resource_t1.values()]):
+                                                                                     if sum(temp_resource_t0.values()) + sum(temp_resource_t1.values()) < best_resource:
+                                                                                         best_resource = sum(temp_resource_t0.values()) + sum(temp_resource_t1.values())
+                                                                                         best_runs_t2 = {key : temp_runs_t2[key] for key in temp_runs_t2}
+                                                                                         best_runs_t1 = {key : temp_runs_t1[key] for key in temp_runs_t1}
+                                                                                         best_resource_t0 = {key : temp_resource_t0[key] for key in temp_resource_t0}
+                                                                                         best_resource_t1 = {key : temp_resource_t1[key] for key in temp_resource_t1}
+                                                                                         improved = True
+        if not improved:
+            break
+        print("Best result in step:")
+        print("T1 job schedule")
+        print(best_runs_t1)
+        print("T2 job schedule")
+        print(best_runs_t2)
+        print("T0 resource left")
+        print(best_resource_t0)
+        print("T1 resource left")
+        print(best_resource_t1)
+        rep_range += 1
+    if(best_resource_t0 == resource_t0):
+        print("Calculation failed, insufficient resources!")
+    else:
+        print("Calculation completed, optimal plan:")
+        print("T1 job schedule")
+        print(best_runs_t1)
+        print("T2 job schedule")
+        print(best_runs_t2)
+        print("T0 resource left")
+        print(best_resource_t0)
+        print("T1 resource left")
+        print(best_resource_t1)
+
 if __name__ == "__main__":
     #####
     #pi_factory_profit()
-    esi_scopes = ["esi-markets.structure_markets.v1", "esi-search.search_structures.v1"]
-    esi_api, esi_client, esi_tokens, esi_api_info = esi_init(esi_scopes)
-    data = market_in_structure(1030049082711, esi_api, esi_client, esi_tokens, esi_api_info, verbose = True)
-    print(data)
+    #####
+    #esi_scopes = ["esi-markets.structure_markets.v1", "esi-search.search_structures.v1"]
+    #esi_api, esi_client, esi_tokens, esi_api_info = esi_init(esi_scopes)
+    #data = market_in_structure(1030049082711, esi_api, esi_client, esi_tokens, esi_api_info, verbose = True)
+    #print(data)
+    reaction_planner()
