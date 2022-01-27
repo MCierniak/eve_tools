@@ -192,6 +192,33 @@ def market_in_structure(s_id, esi_api, esi_client, esi_tokens, esi_api_info, ver
     else:
         raise RuntimeError("missing scope - esi-markets.structure_markets.v1")
 
+#ESI list of character assets
+def character_assets(esi_api, esi_client, esi_tokens, esi_api_info, verbose = True):
+    if verbose:
+        print("Collecting asset data of character", esi_api_info["sub"].replace("CHARACTER:EVE:",""), "...")
+    if "esi-assets.read_assets.v1" in esi_api_info["scp"]:
+        data = []
+        opp = esi_api.op["get_characters_character_id_assets"](
+                page = 1,
+                character_id = esi_api_info["sub"].replace("CHARACTER:EVE:",""),
+                token = esi_tokens["access_token"]
+        )
+        esi_payload = esi_client.request(opp, raise_on_error = True)
+        for el in esi_payload.data:
+            data.append(el)
+        for i in range(2, esi_payload.header["X-Pages"][0] + 1):
+            opp2 = esi_api.op["get_characters_character_id_assets"](
+                page = i,
+                character_id = esi_api_info["sub"].replace("CHARACTER:EVE:",""),
+                token = esi_tokens["access_token"]
+            )
+            esi_payload2 = esi_client.request(opp2, raise_on_error = True)
+            for el in esi_payload2.data:
+                data.append(el)
+        return data
+    else:
+        raise RuntimeError("missing scope - esi-assets.read_assets.v1")
+
 #incomplete
 def pi_factory_profit():
 
@@ -334,54 +361,105 @@ def pi_factory_profit():
 
 def reaction_planner():
     print("Reaction planner v1.0")
+    ids={
+        "Tatara_1dq" : 1029397786276,
+        "mats_hangar" : 1038078532852,
+        "Atmospheric Gases" : 16634,
+        "Cadmium" : 16643,
+        "Caesium" : 16647,
+        "Chromium" : 16641,
+        "Cobalt" : 16640,
+        "Dysprosium" : 16650,
+        "Evaporite Deposits" : 16635,
+        "Hafnium" : 16648,
+        "Hydrocarbons" : 16633,
+        "Mercury" : 16646,
+        "Neodymium" : 16651,
+        "Platinum" : 16644,
+        "Promethium" : 16652,
+        "Scandium" : 16639,
+        "Silicates" : 16636,
+        "Technetium" : 16649,
+        "Thulium" : 16653,
+        "Titanium" : 16638,
+        "Tungsten" : 16637,
+        "Vanadium" : 16642,
+        "Caesarium Cadmide" : 16663,
+        "Carbon Fiber" : 57453,
+        "Carbon Polymers" : 16659,
+        "Ceramic Powder" : 16660,
+        "Crystallite Alloy" : 16655,
+        "Dysporite" : 16668,
+        "Fernite Alloy" : 16656,
+        "Ferrofluid" : 16669,
+        "Fluxed Condensates" : 17769,
+        "Hexite" : 16665,
+        "Hyperflurite" : 16666,
+        "Neo Mercurite" : 16667,
+        "Oxy-Organic Solvents" : 57454,
+        "Platinum Technite" : 16662,
+        "Prometium" : 17960,
+        "Promethium Mercurite" : 33337,
+        "Rolled Tungsten Alloy" : 16657,
+        "Silicon Diborite" : 16658,
+        "Solerium" : 16664,
+        "Sulfuric Acid" : 16661,
+        "Thermosetting Polymer" : 57455,
+        "Thulium Hafnite" : 33336,
+        "Titanium Chromide" : 16654,
+        "Vanadium Hafnite" : 17959
+        }
+    esi_scopes = ["esi-assets.read_assets.v1"]
     print("Collecting resource data...")
+    esi_api, esi_client, esi_tokens, esi_api_info = esi_init(esi_scopes)
+    asset_data = character_assets(esi_api, esi_client, esi_tokens, esi_api_info, verbose = True)
     resource_t0 = {
-        "Atmospheric Gas"       : 6114,
-        "Cadmium"               : 20305,
-        "Caesium"               : 0,
-        "Chromium"              : 23811,
-        "Cobalt"                : 1039,
-        "Dysprosium"            : 1143,
-        "Evaporite Deposits"    : 55234,
-        "Hafnium"               : 9673,
-        "Hydrocarbons"          : 4920,
-        "Mercury"               : 121443,
-        "Neodymium"             : 9345,
-        "Platinum"              : 87836,
-        "Promethium"            : 0,
-        "Scandium"              : 0,
-        "Silicates"             : 10986,
-        "Technetium"            : 0,
-        "Thulium"               : 9786,
-        "Titanium"              : 8433,
-        "Tungsten"              : 24871,
-        "Vanadium"              : 62138
+        "Atmospheric Gases"     : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Atmospheric Gases"]]), 0),
+        "Cadmium"               : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Cadmium"]]), 0),
+        "Caesium"               : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Caesium"]]), 0),
+        "Chromium"              : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Chromium"]]), 0),
+        "Cobalt"                : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Cobalt"]]), 0),
+        "Dysprosium"            : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Dysprosium"]]), 0),
+        "Evaporite Deposits"    : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Evaporite Deposits"]]), 0),
+        "Hafnium"               : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Hafnium"]]), 0),
+        "Hydrocarbons"          : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Hydrocarbons"]]), 0),
+        "Mercury"               : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Mercury"]]), 0),
+        "Neodymium"             : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Neodymium"]]), 0),
+        "Platinum"              : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Platinum"]]), 0),
+        "Promethium"            : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Promethium"]]), 0),
+        "Scandium"              : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Scandium"]]), 0),
+        "Silicates"             : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Silicates"]]), 0),
+        "Technetium"            : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Technetium"]]), 0),
+        "Thulium"               : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Thulium"]]), 0),
+        "Titanium"              : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Titanium"]]), 0),
+        "Tungsten"              : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Tungsten"]]), 0),
+        "Vanadium"              : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Vanadium"]]), 0)
         }
     resource_t1 = {
-        "Caesarium Cadmide"     : 0,
-        "Carbon Fiber"          : 163200,
-        "Carbon Polymers"       : 0,
-        "Ceramic Powder"        : 0,
-        "Crystallite Alloy"     : 178377,
-        "Dysporite"             : 26658,
-        "Fernite Alloy"         : 0,
-        "Ferrofluid"            : 0,
-        "Fluxed Condensates"    : 0,
-        "Hexite"                : 0,
-        "Hyperflurite"          : 0,
-        "Neo Mercurite"         : 15114,
-        "Oxy-Organic Solvents"  : 0,
-        "Platinum Technite"     : 0,
-        "Prometium"             : 0,
-        "Promethium Mercurite"  : 2730,
-        "Rolled Tungsten Alloy" : 0,
-        "Silicon Diborite"      : 103600,
-        "Solerium"              : 0,
-        "Sulfuric Acid"         : 0,
-        "Thermosetting Polymer" : 40090,
-        "Thulium Hafnite"       : 0,
-        "Titanium Chromide"     : 0,
-        "Vanadium Hafnite"      : 0
+        "Caesarium Cadmide"     : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Caesarium Cadmide"]]), 0),
+        "Carbon Fiber"          : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Carbon Fiber"]]), 0),
+        "Carbon Polymers"       : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Carbon Polymers"]]), 0),
+        "Ceramic Powder"        : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Ceramic Powder"]]), 0),
+        "Crystallite Alloy"     : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Crystallite Alloy"]]), 0),
+        "Dysporite"             : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Dysporite"]]), 0),
+        "Fernite Alloy"         : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Fernite Alloy"]]), 0),
+        "Ferrofluid"            : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Ferrofluid"]]), 0),
+        "Fluxed Condensates"    : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Fluxed Condensates"]]), 0),
+        "Hexite"                : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Hexite"]]), 0),
+        "Hyperflurite"          : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Hyperflurite"]]), 0),
+        "Neo Mercurite"         : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Neo Mercurite"]]), 0),
+        "Oxy-Organic Solvents"  : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Oxy-Organic Solvents"]]), 0),
+        "Platinum Technite"     : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Platinum Technite"]]), 0),
+        "Prometium"             : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Prometium"]]), 0),
+        "Promethium Mercurite"  : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Promethium Mercurite"]]), 0),
+        "Rolled Tungsten Alloy" : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Rolled Tungsten Alloy"]]), 0),
+        "Silicon Diborite"      : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Silicon Diborite"]]), 0),
+        "Solerium"              : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Solerium"]]), 0),
+        "Sulfuric Acid"         : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Sulfuric Acid"]]), 0),
+        "Thermosetting Polymer" : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Thermosetting Polymer"]]), 0),
+        "Thulium Hafnite"       : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Thulium Hafnite"]]), 0),
+        "Titanium Chromide"     : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Titanium Chromide"]]), 0),
+        "Vanadium Hafnite"      : next(iter([el["quantity"] for el in asset_data if el["location_id"] == ids["mats_hangar"] and el["type_id"] == ids["Vanadium Hafnite"]]), 0)
         }
     runs_t1 = {
         "Caesarium Cadmide"     : 0,
@@ -452,7 +530,7 @@ def reaction_planner():
                 temp_r_t1["Thermosetting Polymer"] -= 200
             else:
                 temp_t1["Thermosetting Polymer"] += 1
-                temp_r_t0["Atmospheric Gas"] -= 100
+                temp_r_t0["Atmospheric Gases"] -= 100
                 temp_r_t0["Silicates"] -= 100
                 temp_f["Oxygen Fuel Block"] += 5
             if temp_r_t1["Oxy-Organic Solvents"] >= 1:
@@ -460,7 +538,7 @@ def reaction_planner():
             else:
                 temp_t1["Oxy-Organic Solvents"] += 1
                 temp_r_t0["Hydrocarbons"] -= 2000
-                temp_r_t0["Atmospheric Gas"] -= 2000
+                temp_r_t0["Atmospheric Gases"] -= 2000
                 temp_f["Oxygen Fuel Block"] += 5
                 temp_r_t1["Oxy-Organic Solvents"] += 9
         for i in range(temp_o["Pressurized Oxidizers"]):
@@ -475,7 +553,7 @@ def reaction_planner():
                 temp_r_t1["Sulfuric Acid"] -= 200
             else:
                 temp_t1["Sulfuric Acid"] += 1
-                temp_r_t0["Atmospheric Gas"] -= 100
+                temp_r_t0["Atmospheric Gases"] -= 100
                 temp_r_t0["Evaporite Deposits"] -= 100
                 temp_f["Nitrogen Fuel Block"] += 5
             if temp_r_t1["Oxy-Organic Solvents"] >= 1:
@@ -483,7 +561,7 @@ def reaction_planner():
             else:
                 temp_t1["Oxy-Organic Solvents"] += 1
                 temp_r_t0["Hydrocarbons"] -= 2000
-                temp_r_t0["Atmospheric Gas"] -= 2000
+                temp_r_t0["Atmospheric Gases"] -= 2000
                 temp_f["Oxygen Fuel Block"] += 5
                 temp_r_t1["Oxy-Organic Solvents"] += 9
         for i in range(temp_o["Crystalline Carbonide"]):
@@ -580,7 +658,7 @@ def reaction_planner():
                 temp_r_t1["Sulfuric Acid"] -= 100
             else:
                 temp_t1["Sulfuric Acid"] += 1
-                temp_r_t0["Atmospheric Gas"] -= 100
+                temp_r_t0["Atmospheric Gases"] -= 100
                 temp_r_t0["Evaporite Deposits"] -= 100
                 temp_f["Nitrogen Fuel Block"] += 5
                 temp_r_t1["Sulfuric Acid"] += 100
@@ -698,7 +776,7 @@ def reaction_planner():
                 temp_r_t1["Sulfuric Acid"] -= 100
             else:
                 temp_t1["Sulfuric Acid"] += 1
-                temp_r_t0["Atmospheric Gas"] -= 100
+                temp_r_t0["Atmospheric Gases"] -= 100
                 temp_r_t0["Evaporite Deposits"] -= 100
                 temp_f["Nitrogen Fuel Block"] += 5
                 temp_r_t1["Sulfuric Acid"] += 100
@@ -815,80 +893,52 @@ def reaction_planner():
         return temp_r_t0, temp_r_t1, temp_o, temp_t1, temp_f
     
     best_o = {}
-    rep_range = 2
-    permut_old = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
     best_resource = 1e300
     best_runs_t2 = {key : runs_t2[key] for key in runs_t2}
     best_runs_t1 = {key : runs_t1[key] for key in runs_t1}
+    per = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     best_resource_t0 = {key : resource_t0[key] for key in resource_t0}
     best_resource_t1 = {key : resource_t1[key] for key in resource_t1}
+    best_fuel = {key : fuel[key] for key in fuel}
     print("Calculating reaction plans...")
-    while rep_range < 100:
-        improved = False
-        print("Step", rep_range - 1)
-        for a1 in range(rep_range):
-            for a2 in range(rep_range):
-                 for a3 in range(rep_range):
-                     for a4 in range(rep_range):
-                         for a5 in range(rep_range):
-                             for a6 in range(rep_range):
-                                 for a7 in range(rep_range):
-                                     for a8 in range(rep_range):
-                                         for a9 in range(rep_range):
-                                             for a10 in range(rep_range):
-                                                 for a11 in range(rep_range):
-                                                     for a12 in range(rep_range):
-                                                         for a13 in range(rep_range):
-                                                             for a14 in range(rep_range):
-                                                                 for a15 in range(rep_range):
-                                                                     for a16 in range(rep_range):
-                                                                         for a17 in range(rep_range):
-                                                                             per = [a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17]
-                                                                             if per not in permut_old:
-                                                                                 permut_old.append(per)
-                                                                                 temp_runs_t2 = {key : runs_t2[key] for key in runs_t2}
-                                                                                 temp_runs_t2["Reinforced Carbon Fiber"] = per[0]
-                                                                                 temp_runs_t2["Pressurized Oxidizers"] = per[1]
-                                                                                 temp_runs_t2["Crystalline Carbonide"] = per[2]
-                                                                                 temp_runs_t2["Phenolic Composites"] = per[3]
-                                                                                 temp_runs_t2["Fernite Carbide"] = per[4]
-                                                                                 temp_runs_t2["Titanium Carbide"] = per[5]
-                                                                                 temp_runs_t2["Tungsten Carbide"] = per[6]
-                                                                                 temp_runs_t2["Sylramic Fibers"] = per[7]
-                                                                                 temp_runs_t2["Fulleride"] = per[8]
-                                                                                 temp_runs_t2["Terahertz Metamaterials"] = per[9]
-                                                                                 temp_runs_t2["Photonic Metamaterials"] = per[10]
-                                                                                 temp_runs_t2["Plasmonic Metamaterials"] = per[11]
-                                                                                 temp_runs_t2["Nonlinear Metamaterials"] = per[12]
-                                                                                 temp_runs_t2["Nanotransistors"] = per[13]
-                                                                                 temp_runs_t2["Hypersynaptic Fibers"] = per[14]
-                                                                                 temp_runs_t2["Ferrogel"] = per[15]
-                                                                                 temp_runs_t2["Fermionic Condensates"] = per[16]
-                                                                                 temp_resource_t0 = {key : resource_t0[key] for key in resource_t0}
-                                                                                 temp_resource_t1 = {key : resource_t1[key] for key in resource_t1}
-                                                                                 temp_runs_t1 = {key : runs_t1[key] for key in runs_t1}
-                                                                                 temp_fuel = {key : fuel[key] for key in fuel}
-                                                                                 temp_resource_t0, temp_resource_t1, temp_runs_t2, temp_runs_t1, temp_fuel = react(temp_resource_t0, temp_resource_t1, temp_runs_t2, temp_runs_t1, temp_fuel)
-                                                                                 if np.all([(el>=0) for el in temp_resource_t0.values()]) and np.all([(el>=0) for el in temp_resource_t1.values()]):
-                                                                                     if sum(temp_resource_t0.values()) + sum(temp_resource_t1.values()) < best_resource:
-                                                                                         best_resource = sum(temp_resource_t0.values()) + sum(temp_resource_t1.values())
-                                                                                         best_runs_t2 = {key : temp_runs_t2[key] for key in temp_runs_t2}
-                                                                                         best_runs_t1 = {key : temp_runs_t1[key] for key in temp_runs_t1}
-                                                                                         best_resource_t0 = {key : temp_resource_t0[key] for key in temp_resource_t0}
-                                                                                         best_resource_t1 = {key : temp_resource_t1[key] for key in temp_resource_t1}
-                                                                                         improved = True
-        if not improved:
-            break
-        print("Best result in step:")
-        print("T1 job schedule")
-        print(best_runs_t1)
-        print("T2 job schedule")
-        print(best_runs_t2)
-        print("T0 resource left")
-        print(best_resource_t0)
-        print("T1 resource left")
-        print(best_resource_t1)
-        rep_range += 1
+    for i in range(len(per)):
+        while True:
+            per[i] += 1
+            temp_runs_t2 = {key : runs_t2[key] for key in runs_t2}
+            temp_runs_t2["Reinforced Carbon Fiber"] = per[0]
+            temp_runs_t2["Pressurized Oxidizers"] = per[1]
+            temp_runs_t2["Crystalline Carbonide"] = per[2]
+            temp_runs_t2["Phenolic Composites"] = per[3]
+            temp_runs_t2["Fernite Carbide"] = per[4]
+            temp_runs_t2["Titanium Carbide"] = per[5]
+            temp_runs_t2["Tungsten Carbide"] = per[6]
+            temp_runs_t2["Sylramic Fibers"] = per[7]
+            temp_runs_t2["Fulleride"] = per[8]
+            temp_runs_t2["Terahertz Metamaterials"] = per[9]
+            temp_runs_t2["Photonic Metamaterials"] = per[10]
+            temp_runs_t2["Plasmonic Metamaterials"] = per[11]
+            temp_runs_t2["Nonlinear Metamaterials"] = per[12]
+            temp_runs_t2["Nanotransistors"] = per[13]
+            temp_runs_t2["Hypersynaptic Fibers"] = per[14]
+            temp_runs_t2["Ferrogel"] = per[15]
+            temp_runs_t2["Fermionic Condensates"] = per[16]
+            temp_resource_t0 = {key : resource_t0[key] for key in resource_t0}
+            temp_resource_t1 = {key : resource_t1[key] for key in resource_t1}
+            temp_runs_t1 = {key : runs_t1[key] for key in runs_t1}
+            temp_fuel = {key : fuel[key] for key in fuel}
+            temp_resource_t0, temp_resource_t1, temp_runs_t2, temp_runs_t1, temp_fuel = react(temp_resource_t0, temp_resource_t1, temp_runs_t2, temp_runs_t1, temp_fuel)
+            if np.all([(el>=0) for el in temp_resource_t0.values()]) and np.all([(el>=0) for el in temp_resource_t1.values()]):
+                best_resource = sum(temp_resource_t0.values()) + sum(temp_resource_t1.values())
+                best_runs_t2 = {key : temp_runs_t2[key] for key in temp_runs_t2}
+                best_runs_t1 = {key : temp_runs_t1[key] for key in temp_runs_t1}
+                best_resource_t0 = {key : temp_resource_t0[key] for key in temp_resource_t0}
+                best_resource_t1 = {key : temp_resource_t1[key] for key in temp_resource_t1}
+                best_fuel = {key : temp_fuel[key] for key in temp_fuel}
+                continue
+            else:
+                per[i] -= 1
+                break
+
     if(best_resource_t0 == resource_t0):
         print("Calculation failed, insufficient resources!")
     else:
@@ -897,6 +947,8 @@ def reaction_planner():
         print(best_runs_t1)
         print("T2 job schedule")
         print(best_runs_t2)
+        print("Fuel to buy")
+        print(best_fuel)
         print("T0 resource left")
         print(best_resource_t0)
         print("T1 resource left")
