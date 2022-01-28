@@ -360,7 +360,7 @@ def pi_factory_profit():
     print(pi_data_buy_qty[ids["Biomass"]])
 
 def reaction_planner():
-    print("Reaction planner v1.0")
+    print("Reaction planner v1.1")
     ids={
         "Tatara_1dq" : 1029397786276,
         "mats_hangar" : 1038078532852,
@@ -518,6 +518,7 @@ def reaction_planner():
         temp_o = {key : o[key] for key in o}
         temp_t1 = {key : t1[key] for key in t1}
         temp_f = {key : f[key] for key in f}
+        #0
         for i in range(temp_o["Reinforced Carbon Fiber"]):
             if temp_r_t1["Carbon Fiber"] >= 200:
                 temp_r_t1["Carbon Fiber"] -= 200
@@ -541,6 +542,7 @@ def reaction_planner():
                 temp_r_t0["Atmospheric Gases"] -= 2000
                 temp_f["Oxygen Fuel Block"] += 5
                 temp_r_t1["Oxy-Organic Solvents"] += 9
+        #1
         for i in range(temp_o["Pressurized Oxidizers"]):
             if temp_r_t1["Carbon Polymers"] >= 200:
                 temp_r_t1["Carbon Polymers"] -= 200
@@ -564,6 +566,7 @@ def reaction_planner():
                 temp_r_t0["Atmospheric Gases"] -= 2000
                 temp_f["Oxygen Fuel Block"] += 5
                 temp_r_t1["Oxy-Organic Solvents"] += 9
+        #2
         for i in range(temp_o["Crystalline Carbonide"]):
             temp_f["Helium Fuel Block"] += 5
             if temp_r_t1["Carbon Polymers"] >= 100:
@@ -582,6 +585,7 @@ def reaction_planner():
                 temp_r_t0["Cadmium"] -= 100
                 temp_f["Helium Fuel Block"] += 5
                 temp_r_t1["Crystallite Alloy"] += 100
+        #3
         for i in range(temp_o["Phenolic Composites"]):
             temp_f["Oxygen Fuel Block"] += 5
             if temp_r_t1["Silicon Diborite"] >= 100:
@@ -608,6 +612,7 @@ def reaction_planner():
                 temp_r_t0["Hafnium"] -= 100
                 temp_f["Hydrogen Fuel Block"] += 5
                 temp_r_t1["Vanadium Hafnite"] += 100
+        #4
         for i in range(temp_o["Fernite Carbide"]):
             temp_f["Hydrogen Fuel Block"] += 5
             if temp_r_t1["Fernite Alloy"] >= 100:
@@ -626,6 +631,7 @@ def reaction_planner():
                 temp_r_t0["Silicates"] -= 100
                 temp_f["Hydrogen Fuel Block"] += 5
                 temp_r_t1["Ceramic Powder"] += 100
+        #5
         for i in range(temp_o["Titanium Carbide"]):
             temp_f["Oxygen Fuel Block"] += 5
             if temp_r_t1["Titanium Chromide"] >= 100:
@@ -644,6 +650,7 @@ def reaction_planner():
                 temp_r_t0["Silicates"] -= 100
                 temp_f["Oxygen Fuel Block"] += 5
                 temp_r_t1["Silicon Diborite"] += 100
+        #6
         for i in range(temp_o["Tungsten Carbide"]):
             temp_f["Nitrogen Fuel Block"] += 5
             if temp_r_t1["Rolled Tungsten Alloy"] >= 100:
@@ -662,6 +669,7 @@ def reaction_planner():
                 temp_r_t0["Evaporite Deposits"] -= 100
                 temp_f["Nitrogen Fuel Block"] += 5
                 temp_r_t1["Sulfuric Acid"] += 100
+        #7
         for i in range(temp_o["Sylramic Fibers"]):
             temp_f["Helium Fuel Block"] += 5
             if temp_r_t1["Ceramic Powder"] >= 100:
@@ -680,6 +688,7 @@ def reaction_planner():
                 temp_r_t0["Platinum"] -= 100
                 temp_f["Nitrogen Fuel Block"] += 5
                 temp_r_t1["Hexite"] += 100
+        #8
         for i in range(temp_o["Fulleride"]):
             temp_f["Nitrogen Fuel Block"] += 5
             if temp_r_t1["Carbon Polymers"] >= 100:
@@ -698,6 +707,7 @@ def reaction_planner():
                 temp_r_t0["Technetium"] -= 100
                 temp_f["Nitrogen Fuel Block"] += 5
                 temp_r_t1["Platinum Technite"] += 100
+        #9
         for i in range(temp_o["Terahertz Metamaterials"]):
             temp_f["Helium Fuel Block"] += 5
             if temp_r_t1["Rolled Tungsten Alloy"] >= 100:
@@ -716,6 +726,7 @@ def reaction_planner():
                 temp_r_t0["Promethium"] -= 100
                 temp_f["Helium Fuel Block"] += 5
                 temp_r_t1["Promethium Mercurite"] += 100
+        #10
         for i in range(temp_o["Photonic Metamaterials"]):
             temp_f["Oxygen Fuel Block"] += 5
             if temp_r_t1["Crystallite Alloy"] >= 100:
@@ -734,6 +745,7 @@ def reaction_planner():
                 temp_r_t0["Thulium"] -= 100
                 temp_f["Hydrogen Fuel Block"] += 5
                 temp_r_t1["Thulium Hafnite"] += 100
+        #11
         for i in range(temp_o["Plasmonic Metamaterials"]):
             temp_f["Hydrogen Fuel Block"] += 5
             if temp_r_t1["Fernite Alloy"] >= 100:
@@ -752,6 +764,7 @@ def reaction_planner():
                 temp_r_t0["Neodymium"] -= 100
                 temp_f["Helium Fuel Block"] += 5
                 temp_r_t1["Neo Mercurite"] += 100
+        #12
         for i in range(temp_o["Nonlinear Metamaterials"]):
             temp_f["Nitrogen Fuel Block"] += 5
             if temp_r_t1["Titanium Chromide"] >= 100:
@@ -770,6 +783,7 @@ def reaction_planner():
                 temp_r_t0["Dysprosium"] -= 100
                 temp_f["Hydrogen Fuel Block"] += 5
                 temp_r_t1["Ferrofluid"] += 100
+        #13
         for i in range(temp_o["Nanotransistors"]):
             temp_f["Nitrogen Fuel Block"] += 5
             if temp_r_t1["Sulfuric Acid"] >= 100:
@@ -796,6 +810,7 @@ def reaction_planner():
                 temp_r_t0["Neodymium"] -= 100
                 temp_f["Helium Fuel Block"] += 5
                 temp_r_t1["Neo Mercurite"] += 100
+        #14
         for i in range(temp_o["Hypersynaptic Fibers"]):
             temp_f["Oxygen Fuel Block"] += 5
             if temp_r_t1["Solerium"] >= 100:
@@ -822,6 +837,7 @@ def reaction_planner():
                 temp_r_t0["Hafnium"] -= 100
                 temp_f["Hydrogen Fuel Block"] += 5
                 temp_r_t1["Vanadium Hafnite"] += 100
+        #15
         for i in range(temp_o["Ferrogel"]):
             temp_f["Hydrogen Fuel Block"] += 5
             if temp_r_t1["Hexite"] >= 100:
@@ -856,6 +872,7 @@ def reaction_planner():
                 temp_r_t0["Promethium"] -= 100
                 temp_f["Oxygen Fuel Block"] += 5
                 temp_r_t1["Prometium"] += 100
+        #16
         for i in range(temp_o["Fermionic Condensates"]):
             temp_f["Helium Fuel Block"] += 5
             if temp_r_t1["Caesarium Cadmide"] >= 100:
@@ -894,55 +911,64 @@ def reaction_planner():
     
     best_o = {}
     best_resource = 1e300
+    best_fuel = {key : fuel[key] for key in fuel}
     best_runs_t2 = {key : runs_t2[key] for key in runs_t2}
     best_runs_t1 = {key : runs_t1[key] for key in runs_t1}
-    per = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     best_resource_t0 = {key : resource_t0[key] for key in resource_t0}
     best_resource_t1 = {key : resource_t1[key] for key in resource_t1}
-    best_fuel = {key : fuel[key] for key in fuel}
+    best_combination = 0
     print("Calculating reaction plans...")
-    for i in range(len(per)):
-        while True:
-            per[i] += 1
-            temp_runs_t2 = {key : runs_t2[key] for key in runs_t2}
-            temp_runs_t2["Reinforced Carbon Fiber"] = per[0]
-            temp_runs_t2["Pressurized Oxidizers"] = per[1]
-            temp_runs_t2["Crystalline Carbonide"] = per[2]
-            temp_runs_t2["Phenolic Composites"] = per[3]
-            temp_runs_t2["Fernite Carbide"] = per[4]
-            temp_runs_t2["Titanium Carbide"] = per[5]
-            temp_runs_t2["Tungsten Carbide"] = per[6]
-            temp_runs_t2["Sylramic Fibers"] = per[7]
-            temp_runs_t2["Fulleride"] = per[8]
-            temp_runs_t2["Terahertz Metamaterials"] = per[9]
-            temp_runs_t2["Photonic Metamaterials"] = per[10]
-            temp_runs_t2["Plasmonic Metamaterials"] = per[11]
-            temp_runs_t2["Nonlinear Metamaterials"] = per[12]
-            temp_runs_t2["Nanotransistors"] = per[13]
-            temp_runs_t2["Hypersynaptic Fibers"] = per[14]
-            temp_runs_t2["Ferrogel"] = per[15]
-            temp_runs_t2["Fermionic Condensates"] = per[16]
-            temp_resource_t0 = {key : resource_t0[key] for key in resource_t0}
-            temp_resource_t1 = {key : resource_t1[key] for key in resource_t1}
-            temp_runs_t1 = {key : runs_t1[key] for key in runs_t1}
-            temp_fuel = {key : fuel[key] for key in fuel}
-            temp_resource_t0, temp_resource_t1, temp_runs_t2, temp_runs_t1, temp_fuel = react(temp_resource_t0, temp_resource_t1, temp_runs_t2, temp_runs_t1, temp_fuel)
-            if np.all([(el>=0) for el in temp_resource_t0.values()]) and np.all([(el>=0) for el in temp_resource_t1.values()]):
-                best_resource = sum(temp_resource_t0.values()) + sum(temp_resource_t1.values())
-                best_runs_t2 = {key : temp_runs_t2[key] for key in temp_runs_t2}
-                best_runs_t1 = {key : temp_runs_t1[key] for key in temp_runs_t1}
-                best_resource_t0 = {key : temp_resource_t0[key] for key in temp_resource_t0}
-                best_resource_t1 = {key : temp_resource_t1[key] for key in temp_resource_t1}
-                best_fuel = {key : temp_fuel[key] for key in temp_fuel}
-                continue
-            else:
-                per[i] -= 1
-                break
+    combination = [
+        (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+        ]
+    #for j, subset in enumerate(itertools.permutations([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])):
+    for j, subset in enumerate(combination):
+        per = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        for i in list(subset):
+            while True:
+                per[i] += 1
+                temp_runs_t2 = {key : runs_t2[key] for key in runs_t2}
+                temp_runs_t2["Reinforced Carbon Fiber"] = per[0]
+                temp_runs_t2["Pressurized Oxidizers"] = per[1]
+                temp_runs_t2["Crystalline Carbonide"] = per[2]
+                temp_runs_t2["Phenolic Composites"] = per[3]
+                temp_runs_t2["Fernite Carbide"] = per[4]
+                temp_runs_t2["Titanium Carbide"] = per[5]
+                temp_runs_t2["Tungsten Carbide"] = per[6]
+                temp_runs_t2["Sylramic Fibers"] = per[7]
+                temp_runs_t2["Fulleride"] = per[8]
+                temp_runs_t2["Terahertz Metamaterials"] = per[9]
+                temp_runs_t2["Photonic Metamaterials"] = per[10]
+                temp_runs_t2["Plasmonic Metamaterials"] = per[11]
+                temp_runs_t2["Nonlinear Metamaterials"] = per[12]
+                temp_runs_t2["Nanotransistors"] = per[13]
+                temp_runs_t2["Hypersynaptic Fibers"] = per[14]
+                temp_runs_t2["Ferrogel"] = per[15]
+                temp_runs_t2["Fermionic Condensates"] = per[16]
+                temp_resource_t0 = {key : resource_t0[key] for key in resource_t0}
+                temp_resource_t1 = {key : resource_t1[key] for key in resource_t1}
+                temp_runs_t1 = {key : runs_t1[key] for key in runs_t1}
+                temp_fuel = {key : fuel[key] for key in fuel}
+                temp_resource_t0, temp_resource_t1, temp_runs_t2, temp_runs_t1, temp_fuel = react(temp_resource_t0, temp_resource_t1, temp_runs_t2, temp_runs_t1, temp_fuel)
+                if np.all([(el>=0) for el in temp_resource_t0.values()]) and np.all([(el>=0) for el in temp_resource_t1.values()]):
+                    if sum(temp_resource_t0.values()) + sum(temp_resource_t1.values()) <= best_resource:
+                        best_combination = j
+                        best_resource = sum(temp_resource_t0.values()) + sum(temp_resource_t1.values())
+                        best_runs_t2 = {key : temp_runs_t2[key] for key in temp_runs_t2}
+                        best_runs_t1 = {key : temp_runs_t1[key] for key in temp_runs_t1}
+                        best_resource_t0 = {key : temp_resource_t0[key] for key in temp_resource_t0}
+                        best_resource_t1 = {key : temp_resource_t1[key] for key in temp_resource_t1}
+                        best_fuel = {key : temp_fuel[key] for key in temp_fuel}
+                    continue
+                else:
+                    per[i] -= 1
+                    break
 
     if(best_resource_t0 == resource_t0):
         print("Calculation failed, insufficient resources!")
     else:
         print("Calculation completed, optimal plan:")
+        print("Permutation", best_combination)
         print("T1 job schedule")
         print(best_runs_t1)
         print("T2 job schedule")
