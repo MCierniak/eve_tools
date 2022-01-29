@@ -222,9 +222,10 @@ def character_assets(esi_api, esi_client, esi_tokens, esi_api_info, verbose = Tr
 #incomplete
 def pi_factory_profit():
 
-    esi_scopes = ["esi-markets.structure_markets.v1", "esi-search.search_structures.v1"]
+    esi_scopes = ["esi-markets.structure_markets.v1"]
     ids ={
-        "Delve"                             : 10000060,
+        "1DQ1-A market"                     : 1030049082711,
+        "4O-239 market"                     : 1037052098637,
         "Bacteria"                          : 2393,
         "Biofuels"                          : 2396,
         "Biomass"                           : 3779,
@@ -297,21 +298,14 @@ def pi_factory_profit():
 
     esi_api, esi_client, esi_tokens, esi_api_info = esi_init(esi_scopes)
 
-    solar_systems = solar_systems_in_region(ids["Delve"], esi_api, esi_client)
-
-    print("Extracting structure ids...")
-    structures = []
-    for el in solar_systems:
-        temp = structures_in_system(el, esi_api, esi_client, esi_tokens, esi_api_info, verbose = False)
-        for el2 in temp:
-            structures.append(el2)
-
     print("Extracting market data...")
     data = []
-    for el in structures:
-        temp = market_in_structure(el, esi_api, esi_client, esi_tokens, esi_api_info, verbose = False)
-        for el2 in temp:
-            data.append(el2)
+    temp = market_in_structure(ids["1DQ1-A market"], esi_api, esi_client, esi_tokens, esi_api_info, verbose = False)
+    for el in temp:
+        data.append(el)
+    temp = market_in_structure(ids["4O-239 market"], esi_api, esi_client, esi_tokens, esi_api_info, verbose = False)
+    for el in temp:
+        data.append(el)
 
     print("Parsing market data...")
     pi_data_sell_value = {
@@ -347,17 +341,19 @@ def pi_factory_profit():
         2872 : [], 2875 : [], 2876 : []
     }
     for el in data:
+        print(el)
+        input()
         if el["is_buy_order"]:
             if el["type_id"] in pi_data_buy_value:
                 pi_data_buy_value[el["type_id"]].append(el["price"])
-                pi_data_buy_qty[el["type_id"]].append(el["volume_total"])
+                pi_data_buy_qty[el["type_id"]].append(el["volume_remain"])
         else:
             if el["type_id"] in pi_data_sell_value:
                 pi_data_sell_value[el["type_id"]].append(el["price"])
-                pi_data_sell_qty[el["type_id"]].append(el["volume_total"])
+                pi_data_sell_qty[el["type_id"]].append(el["volume_remain"])
 
-    print(pi_data_buy_value[ids["Biomass"]])
-    print(pi_data_buy_qty[ids["Biomass"]])
+    print(pi_data_sell_value[ids["Bacteria"]])
+    print(pi_data_sell_qty[ids["Bacteria"]])
 
 def reaction_planner():
     print("Reaction planner v1.1")
@@ -982,10 +978,6 @@ def reaction_planner():
 
 if __name__ == "__main__":
     #####
-    #pi_factory_profit()
+    pi_factory_profit()
     #####
-    #esi_scopes = ["esi-markets.structure_markets.v1", "esi-search.search_structures.v1"]
-    #esi_api, esi_client, esi_tokens, esi_api_info = esi_init(esi_scopes)
-    #data = market_in_structure(1030049082711, esi_api, esi_client, esi_tokens, esi_api_info, verbose = True)
-    #print(data)
-    reaction_planner()
+    #reaction_planner()
